@@ -1,3 +1,59 @@
 steps:
-- name: 'gcr.io/cloud-builders/docker'
-  args: [ 'build', '-t', 'gcr.io/yong-wei-portfolio/portfolio-placeholder', '.' ]
+  - id: "build image"
+    name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "${_CONTAINER_REGISTRY_REGION}.gcr.io/${PROJECT_ID}/${REPO_NAME}-${BRANCH_NAME}",
+        ".",
+      ]
+
+  - id: "push image"
+    name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "${_CONTAINER_REGISTRY_REGION}.gcr.io/${PROJECT_ID}/${REPO_NAME}-${BRANCH_NAME}",
+      ]
+
+  - id: "deploy prod service"
+    name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "gcloud"
+    args:
+      [
+        "run",
+        "deploy",
+        "${REPO_NAME}-${BRANCH_NAME}",
+        "--platform",
+        "managed",
+        "--region",
+        "${_CLOUD_RUN_REGION}",
+        "--allow-unauthenticated",
+        "--image",
+        "${_CONTAINER_REGISTRY_REGION}.gcr.io/${PROJECT_ID}/${REPO_NAME}-${BRANCH_NAME}",
+      ]
+
+  # Force the new revision to serve 100% of traffic.
+  - id: "ensure prod service live"
+    name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "gcloud"
+    args:
+      [
+        "run",
+        "services",
+        "update-traffic",
+        "${REPO_NAME}-${BRANCH_NAME}",
+        "--to-latest",
+        "--platform",
+        "managed",
+        "--region",
+        "${_CLOUD_RUN_REGION}",
+      ]
+
+substitutions:
+  _CONTAINER_REGISTRY_REGION: asia
+  _CLOUD_RUN_REGION: asia-southeast1
+  _CLOUD_FUNCTION_REGION: asia-southeast2
+
+timeout: 900s
