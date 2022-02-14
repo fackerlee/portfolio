@@ -10,6 +10,7 @@
 * [HTML]
 * [CSS]
 * [JavaScript]
+* [Bootstrap 5](https://getbootstrap.com/docs/5.0/getting-started/introduction/)
 * [BoxIcons](https://boxicons.com/)
 * [Glightbox](https://biati-digital.github.io/glightbox/)
 
