@@ -5,7 +5,7 @@ steps:
       [
         "build",
         "-t",
-        "${_CONTAINER_REGISTRY_REGION}.gcr.io/${PROJECT_ID}/${REPO_NAME}-${BRANCH_NAME}",
+        "${_ARTIFACT_REGISTRY_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${REPO_NAME}-${BRANCH_NAME}",
         ".",
       ]
 
@@ -14,7 +14,7 @@ steps:
     args:
       [
         "push",
-        "${_CONTAINER_REGISTRY_REGION}.gcr.io/${PROJECT_ID}/${REPO_NAME}-${BRANCH_NAME}",
+        "${_ARTIFACT_REGISTRY_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${REPO_NAME}-${BRANCH_NAME}",
       ]
 
   - id: "deploy prod service"
@@ -31,10 +31,9 @@ steps:
         "${_CLOUD_RUN_REGION}",
         "--allow-unauthenticated",
         "--image",
-        "${_CONTAINER_REGISTRY_REGION}.gcr.io/${PROJECT_ID}/${REPO_NAME}-${BRANCH_NAME}",
+        "${_ARTIFACT_REGISTRY_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${REPO_NAME}-${BRANCH_NAME}",
       ]
 
-  # Force the new revision to serve 100% of traffic.
   - id: "ensure prod service live"
     name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: "gcloud"
@@ -52,7 +51,8 @@ steps:
       ]
 
 substitutions:
-  _CONTAINER_REGISTRY_REGION: asia
+  _ARTIFACT_REGISTRY_REGION: asia-southeast1
+  _REPOSITORY: docker-images-yong-wei-portfolio
   _CLOUD_RUN_REGION: asia-southeast1
   _CLOUD_FUNCTION_REGION: asia-southeast2
 
