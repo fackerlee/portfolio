@@ -5,7 +5,7 @@ steps:
       [
         "build",
         "-t",
-        "${_ARTIFACT_REGISTRY_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${REPO_NAME}-${BRANCH_NAME}",
+        "${_ARTIFACT_REGISTRY_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/portfolio:$COMMIT_SHA",
         ".",
       ]
 
@@ -14,7 +14,7 @@ steps:
     args:
       [
         "push",
-        "${_ARTIFACT_REGISTRY_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${REPO_NAME}-${BRANCH_NAME}",
+        "${_ARTIFACT_REGISTRY_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/portfolio:$COMMIT_SHA",
       ]
 
   - id: "deploy prod service"
@@ -24,14 +24,14 @@ steps:
       [
         "run",
         "deploy",
-        "${REPO_NAME}-${BRANCH_NAME}",
+        "portfolio",
         "--platform",
         "managed",
         "--region",
         "${_CLOUD_RUN_REGION}",
         "--allow-unauthenticated",
         "--image",
-        "${_ARTIFACT_REGISTRY_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${REPO_NAME}-${BRANCH_NAME}",
+        "${_ARTIFACT_REGISTRY_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/portfolio:$COMMIT_SHA",
       ]
 
   - id: "ensure prod service live"
@@ -42,7 +42,7 @@ steps:
         "run",
         "services",
         "update-traffic",
-        "${REPO_NAME}-${BRANCH_NAME}",
+        "portfolio",
         "--to-latest",
         "--platform",
         "managed",
@@ -54,6 +54,5 @@ substitutions:
   _ARTIFACT_REGISTRY_REGION: asia-southeast1
   _REPOSITORY: docker-images-yong-wei-portfolio
   _CLOUD_RUN_REGION: asia-southeast1
-  _CLOUD_FUNCTION_REGION: asia-southeast2
 
 timeout: 900s
